@@ -16,8 +16,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+    select:false,
     minLength:[8, `the password should contain atleast 8 characters`],
-    maxLength:[40, `the password should contain atmost 40 characters`],
+    maxLength:[80, `the password should contain atmost 40 characters`],
   },
   email: {
     type: String,
@@ -26,33 +27,37 @@ const UserSchema = new mongoose.Schema({
     trim: true,
   },
   posts: [{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Post'
   }],
   avatar: {
-    type: String
+    publicId:{
+      type: String,// cloudinary Id
+    },
+    secureUrl:{
+      type: String,// cloudinary url
+    }
     
   }
-});
-
-const User = mongoose.model('User', UserSchema);
+},{timestamps:true});
 
 UserSchema.pre('save', async function(next){
-  if (!this.isModified(`password`)) return next()
-  this.password = await bcrypt.hash(this.password, 10)
+  if(!this.isModified('password')) return next()
+  this.password= await bcrypt.hash(this.password, 10)
   next()
 })
 
-UserSchema.methods ={
-  generateAccessToken: async function (){
+UserSchema.methods={
+
+  generateAccessToken: async function(){
     return await jwt.sign(
-      {id:this._id, username:this.username, email: this.email},
+      {id:this._id, name: this.name, email: this.email},
       process.env.ACCESS_SECRET_TOKEN,
-      {expiresIn:'5m'}
+      {expiresIn: '5m'}
     )
   }
+
 }
 
+const User = mongoose.model('User', UserSchema)
 export default User 
-
-
