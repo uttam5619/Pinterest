@@ -55,6 +55,10 @@ UserSchema.methods={
       process.env.ACCESS_SECRET_TOKEN,
       {expiresIn: '5m'}
     )
+  },
+
+  isPasswordCorrect: async function(password){
+    return await bcrypt.compare(password, this.password)
   }
 
 }
