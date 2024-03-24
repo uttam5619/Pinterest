@@ -1,4 +1,7 @@
 import User from "../models/user.model.js"
+import cloudinary from 'cloudinary'
+import fs from 'fs/promises'
+import { profile_Image } from "../utils/constants.js"
 
 
 const cookieOptions={
@@ -17,7 +20,34 @@ const signUp = async (req, res, next)=>{
         if(doesUserAlreadyExist){
             return res.status(400).json({success:false, message:`Already registered`})
         }
-        const user = await User.create({username:name, email, password})
+        const user = await User.create({
+            username:name,
+            email,
+            password,
+            avatar:{secure_url:profile_Image, public_id:email}
+        })
+        //File uploading
+        if(req.file){
+            try{
+            //console.log(JSON.stringify(req.file))
+            const result =await cloudinary.uploader.upload(req.file.path, {
+                folder: 'Pinterest',
+                width:250,
+                height: 250,
+                gravity: 'faces',
+                crop:'fill'
+            })
+            if(!result){
+                console.log(`failed to upload on cloudinary`)
+            }
+            console.log(result.public_id, result.secure_url)
+            user.avatar.public_id=result.public_id
+            user.avatar.secure_url=result.secure_url
+            fs.rm(`uploads/${req.file.filename}`)
+            }catch(error){
+                console.log(`error occured while uploading on cloudinary ${error.message}`)
+            }
+        }
         user.save()
         const token = await user.generateAccessToken()
         res.cookie('token', token, cookieOptions)
