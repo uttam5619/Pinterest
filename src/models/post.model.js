@@ -16,17 +16,17 @@ const PostSchema = new mongoose.Schema({
     default: 0
   },
   comments: [{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
   image: {
     publicId: {
       type: String,
-      required: true
+      //required: true
     },
     url: {
       type: String,
-      required: true
+      //required: true
     }
   },
   createdBy:{

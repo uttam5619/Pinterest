@@ -31,14 +31,21 @@ const UserSchema = new mongoose.Schema({
     ref: 'Post'
   }],
   avatar: {
-    publicId:{
-      type: String,// cloudinary Id
+    public_id:{
+      type: String,// cloudinary id
     },
-    secureUrl:{
+    secure_url:{
       type: String,// cloudinary url
     }
-    
-  }
+  },
+  followers: [{ 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
 },{timestamps:true});
 
 UserSchema.pre('save', async function(next){

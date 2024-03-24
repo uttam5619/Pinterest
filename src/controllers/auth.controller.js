@@ -54,4 +54,6 @@ const logOut =(req, res)=>{
 
 }
 
+
+
 export { signUp, signIn, logOut }
